@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import companyLogo from "../../assets/SAS_Logo_PNG.png";
 import "./RegisterForm.css";
 
@@ -123,7 +124,7 @@ function StepOne({ data, onChange, onNext }) {
 }
 
 // ── Step 2 ──
-function StepTwo({ data, onChange, onBack, onSubmit }) {
+function StepTwo({ data, onChange, onBack, onSubmit, loading }) {
   const [errors, setErrors] = useState({});
   const [showInfo, setShowInfo] = useState(false);
 
@@ -131,11 +132,8 @@ function StepTwo({ data, onChange, onBack, onSubmit }) {
     const e = {};
     if (!data.dbUrl.trim()) {
       e.dbUrl = "Database connection string is required";
-    } else if (
-      !data.dbUrl.toLowerCase().includes("server=") &&
-      !data.dbUrl.toLowerCase().startsWith("mssql://")
-    ) {
-      e.dbUrl = "Must include Server= and Database= (or start with mssql://)";
+    } else if (!data.dbUrl.toLowerCase().startsWith("mysql://")) {
+      e.dbUrl = 'Must start with "mysql://"';
     }
     return e;
   }
@@ -231,8 +229,8 @@ function StepTwo({ data, onChange, onBack, onSubmit }) {
         <button className="btn-secondary" onClick={onBack}>
           ← Back
         </button>
-        <button className="btn-primary" onClick={handleSubmit}>
-          Register Project ✓
+        <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Registering..." : "Register Project ✓"}
         </button>
       </div>
     </div>
@@ -274,6 +272,7 @@ function SuccessScreen({ data }) {
 export default function RegisterForm() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     projectName: "",
     logo: null,
@@ -284,16 +283,40 @@ export default function RegisterForm() {
     setFormData((p) => ({ ...p, [key]: value }));
   }
 
-  function handleSubmit() {
-    console.log("Project registered:", formData);
-    setSubmitted(true);
+  async function handleSubmit() {
+    setLoading(true);
+
+    try {
+      const payload = new FormData();
+      payload.append("projectName", formData.projectName);
+      payload.append("dbUrl", formData.dbUrl);
+      payload.append("logo", formData.logo.file);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/projects/register`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Success:", response.data);
+      setSubmitted(true);
+
+    } catch (err) {
+      console.error("Error:", err);
+      alert(err.response?.data?.error || "Server se connect nahi ho pa raha!");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <>
       <div className="page">
         <div className="card">
-          {/* Brand Header */}
           <div className="brand-header">
             <div className="brand-logo-circle">
               <img src={companyLogo} alt="Company Logo" />
@@ -320,6 +343,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               onBack={() => setStep(1)}
               onSubmit={handleSubmit}
+              loading={loading}
             />
           )}
 

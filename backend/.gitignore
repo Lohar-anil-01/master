@@ -51,3 +51,6 @@ out/
 # Temporary files
 tmp/
 temp/
+
+#folders
+uploads/
