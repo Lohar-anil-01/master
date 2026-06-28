@@ -1,0 +1,16 @@
+{
+  "project": {
+    "id": "steel-plant",
+    "name": "Steel Plant",
+    "logo": "/uploads/1782659457893.png",
+    "theme": {
+      "primary": "#E8720C",
+      "background": "#FDF6EE",
+      "accent": "#F59332"
+    }
+  },
+  "database": {
+    "connectionString": "mysql://root:Bhairavi%4011@localhost:3306/master_db"
+  },
+  "createdAt": "2026-06-28T15:10:57.917Z"
+}
