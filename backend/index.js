@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import projectRouter from "./routes/project.js";
+import registerRouter from "./routes/register.js";
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ── Routes ──
-app.use("/api/projects", projectRouter);
+app.use("/api/register", registerRouter);
 
 // ── Server Start ──
 const PORT = process.env.PORT || 5000;

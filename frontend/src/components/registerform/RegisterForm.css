@@ -191,7 +191,9 @@ body {
     pointer-events: none;
 }
 
-.field input[type="text"] {
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"] {
     width: 100%;
     background: #F9FAFB;
     border: 1.5px solid #E5E7EB;
@@ -204,10 +206,21 @@ body {
     font-family: inherit;
 }
 
-.field input[type="text"]:focus {
+.field input[type="text"]:focus,
+.field input[type="email"]:focus,
+.field input[type="password"]:focus {
     border-color: #E8720C;
     background: #fff;
     box-shadow: 0 0 0 3px rgba(232, 114, 12, 0.12);
+}
+
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
+.field input:-webkit-autofill:active {
+    -webkit-text-fill-color: #111827 !important;
+    -webkit-box-shadow: 0 0 0 1000px #F9FAFB inset !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .field input.error-input {

@@ -12,15 +12,30 @@ function Stepper({ current }) {
           {current > 1 ? "✓" : "1"}
         </div>
         <span className={`step-label ${current === 1 ? "active" : ""}`}>
-          Project Info
+          Account
         </span>
       </div>
       <div className="step-divider">
         <div className={`step-divider-fill ${current > 1 ? "filled" : ""}`} />
       </div>
+
       <div className="step-wrap">
-        <div className={`step-circle ${current === 2 ? "active" : ""}`}>2</div>
+        <div
+          className={`step-circle ${current > 2 ? "done" : current === 2 ? "active" : ""}`}
+        >
+          {current > 2 ? "✓" : "2"}
+        </div>
         <span className={`step-label ${current === 2 ? "active" : ""}`}>
+          Project Info
+        </span>
+      </div>
+      <div className="step-divider">
+        <div className={`step-divider-fill ${current > 2 ? "filled" : ""}`} />
+      </div>
+
+      <div className="step-wrap">
+        <div className={`step-circle ${current === 3 ? "active" : ""}`}>3</div>
+        <span className={`step-label ${current === 3 ? "active" : ""}`}>
           Database
         </span>
       </div>
@@ -28,8 +43,116 @@ function Stepper({ current }) {
   );
 }
 
+// ── Step 0 ──
+
+function StepZero({ data, onChange, onNext }) {
+  const [errors, setErrors] = useState({});
+
+  function validate() {
+    const e = {};
+    if (!data.username.trim()) e.username = "Username is required";
+    if (!data.email.trim()) {
+      e.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+      e.email = "Enter a valid email";
+    }
+    if (!data.password.trim()) {
+      e.password = "Password is required";
+    } else if (data.password.length < 6) {
+      e.password = "Password must be at least 6 characters";
+    }
+    return e;
+  }
+
+  function handleNext() {
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
+      return;
+    }
+    setErrors({});
+    onNext();
+  }
+
+  return (
+    <div>
+      <p className="form-title">Create Your Account</p>
+      <p className="form-subtitle">Let's start with your basic details.</p>
+
+      <div className="field">
+        <label htmlFor="username">Username</label>
+        <div className="input-wrap">
+          <span className="input-icon">👤</span>
+          <input
+            id="username"
+            name="username"
+            autoComplete="username"
+            type="text"
+            placeholder="e.g. Anil Kumar"
+            value={data.username}
+            className={errors.username ? "error-input" : ""}
+            onChange={(e) => {
+              onChange("username", e.target.value);
+              setErrors((p) => ({ ...p, username: null }));
+            }}
+          />
+        </div>
+        {errors.username && <p className="error-msg">⚠ {errors.username}</p>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="email">Email</label>
+        <div className="input-wrap">
+          <span className="input-icon">✉️</span>
+          <input
+            id="email"
+            name="email"
+            autoComplete="email"
+            type="email"
+            placeholder="e.g. person@company.com"
+            value={data.email}
+            className={errors.email ? "error-input" : ""}
+            onChange={(e) => {
+              onChange("email", e.target.value);
+              setErrors((p) => ({ ...p, email: null }));
+            }}
+          />
+        </div>
+        {errors.email && <p className="error-msg">⚠ {errors.email}</p>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="password">Password</label>
+        <div className="input-wrap">
+          <span className="input-icon">🔒</span>
+          <input
+            id="password"
+            name="password"
+            autoComplete="new-password"
+            type="password"
+            placeholder="Min 6 characters"
+            value={data.password}
+            className={errors.password ? "error-input" : ""}
+            onChange={(e) => {
+              onChange("password", e.target.value);
+              setErrors((p) => ({ ...p, password: null }));
+            }}
+          />
+        </div>
+        {errors.password && <p className="error-msg">⚠ {errors.password}</p>}
+      </div>
+
+      <div className="btn-row">
+        <button className="btn-primary" onClick={handleNext}>
+          Continue →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Step 1 ──
-function StepOne({ data, onChange, onNext }) {
+function StepOne({ data, onChange, onBack, onNext }) {
   const [errors, setErrors] = useState({});
 
   function validate() {
@@ -115,6 +238,9 @@ function StepOne({ data, onChange, onNext }) {
       </div>
 
       <div className="btn-row">
+        <button className="btn-secondary" onClick={onBack}>
+          ← Back
+        </button>
         <button className="btn-primary" onClick={handleNext}>
           Continue →
         </button>
@@ -229,7 +355,11 @@ function StepTwo({ data, onChange, onBack, onSubmit, loading }) {
         <button className="btn-secondary" onClick={onBack}>
           ← Back
         </button>
-        <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+        <button
+          className="btn-primary"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading ? "Registering..." : "Register Project ✓"}
         </button>
       </div>
@@ -274,6 +404,9 @@ export default function RegisterForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
     projectName: "",
     logo: null,
     dbUrl: "",
@@ -288,6 +421,9 @@ export default function RegisterForm() {
 
     try {
       const payload = new FormData();
+      payload.append("username", formData.username);
+      payload.append("email", formData.email);
+      payload.append("password", formData.password);
       payload.append("projectName", formData.projectName);
       payload.append("dbUrl", formData.dbUrl);
       payload.append("logo", formData.logo.file);
@@ -295,19 +431,14 @@ export default function RegisterForm() {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/projects/register`,
         payload,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       console.log("Success:", response.data);
       setSubmitted(true);
-
     } catch (err) {
       console.error("Error:", err);
-      alert(err.response?.data?.error || "Server se connect nahi ho pa raha!");
+      alert(err.response?.data?.error || "Not connecting to server");
     } finally {
       setLoading(false);
     }
@@ -332,16 +463,23 @@ export default function RegisterForm() {
           {submitted ? (
             <SuccessScreen data={formData} />
           ) : step === 1 ? (
-            <StepOne
+            <StepZero
               data={formData}
               onChange={handleChange}
               onNext={() => setStep(2)}
+            />
+          ) : step === 2 ? (
+            <StepOne
+              data={formData}
+              onChange={handleChange}
+              onBack={() => setStep(1)}
+              onNext={() => setStep(3)}
             />
           ) : (
             <StepTwo
               data={formData}
               onChange={handleChange}
-              onBack={() => setStep(1)}
+              onBack={() => setStep(2)}
               onSubmit={handleSubmit}
               loading={loading}
             />

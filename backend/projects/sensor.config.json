@@ -1,0 +1,16 @@
+{
+  "project": {
+    "id": "sensor",
+    "name": "sensor",
+    "logo": "/uploads/1782816219793.png",
+    "theme": {
+      "primary": "#E8720C",
+      "background": "#FDF6EE",
+      "accent": "#F59332"
+    }
+  },
+  "database": {
+    "connectionString": "mysql://root:Sas@1234@localhost:3306/master_db"
+  },
+  "createdAt": "2026-06-30T10:43:39.948Z"
+}
