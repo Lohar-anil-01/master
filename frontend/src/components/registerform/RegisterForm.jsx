@@ -438,7 +438,7 @@ export default function RegisterForm() {
       setSubmitted(true);
     } catch (err) {
       console.error("Error:", err);
-      alert(err.response?.data?.error || "Not connecting to server");
+      alert(err.response?.data?.error || "Unable to connect to the server");
     } finally {
       setLoading(false);
     }

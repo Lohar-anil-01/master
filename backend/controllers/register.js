@@ -16,6 +16,8 @@ const localDbConfig = {
 };
 
 const registerProject = async (req, res) => {
+  console.log(req.body);
+
   const { username, email, password, projectName, dbUrl } = req.body;
 
   let localConnection;
